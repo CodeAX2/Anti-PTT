@@ -8,8 +8,9 @@ INPUT inp;
 bool running = true;
 
 void pressKey() {
-	while (running)
+	while (running) {
 		SendInput(1, &inp, sizeof(INPUT));
+	}
 }
 
 int main() {
@@ -31,36 +32,38 @@ int main() {
 		}
 	}
 
-
 	DWORD mouseMapDown[6] = { MOUSEEVENTF_LEFTDOWN,MOUSEEVENTF_RIGHTDOWN,NULL,MOUSEEVENTF_MIDDLEDOWN,MOUSEEVENTF_XDOWN,MOUSEEVENTF_XDOWN };
 	DWORD mouseMapUp[6] = { MOUSEEVENTF_LEFTUP,MOUSEEVENTF_RIGHTUP,NULL,MOUSEEVENTF_MIDDLEUP,MOUSEEVENTF_XUP,MOUSEEVENTF_XUP };
 
 	inp = { 0 };
 
+	std::thread keyThread;
+
 	if (pttKey <= 0x06) {
 		inp.type = INPUT_MOUSE;
 		inp.mi.dwFlags = mouseMapDown[pttKey - 1];
+
 		if (pttKey == 0x05) {
-			inp.mi.mouseData = 0x0001;
+			inp.mi.mouseData = 1;
 		} else if (pttKey == 0x06) {
-			inp.mi.mouseData = 0x0002;
+			inp.mi.mouseData = 2;
 		}
+
+
 	} else {
+
 		inp.type = INPUT_KEYBOARD;
 		inp.ki.dwFlags = 0;
 		inp.ki.wVk = pttKey;
+
 	}
 
-	std::thread keyThread;
-
-
-	if (pttKey <= 0x06) {
-		inp.mi.dwFlags = mouseMapDown[pttKey - 1];
+	if (inp.type == INPUT_KEYBOARD) {
+		keyThread = std::thread(&pressKey);
 	} else {
-		inp.ki.dwFlags = 0;
+		Sleep(1000);
+		SendInput(1, &inp, sizeof(INPUT));
 	}
-
-	keyThread = std::thread(&pressKey);
 
 	std::cout << "Started! Press enter to exit!" << std::endl;
 
@@ -68,15 +71,26 @@ int main() {
 	std::string enterToExit;
 	std::getline(std::cin, enterToExit);
 
+	// Exit program
+
 	if (pttKey <= 0x06) {
 		inp.mi.dwFlags = mouseMapUp[pttKey - 1];
+
+		if (pttKey == 0x05) {
+			inp.mi.mouseData = 1;
+		} else if (pttKey == 0x06) {
+			inp.mi.mouseData = 2;
+		}
+
 	} else {
 		inp.ki.dwFlags = 2;
 	}
 
-
-	running = false;
-	keyThread.join();
+	if (inp.type == INPUT_KEYBOARD) {
+		running = false;
+		keyThread.join();
+		keyThread.~thread();
+	}
 
 
 	SendInput(1, &inp, sizeof(INPUT));
