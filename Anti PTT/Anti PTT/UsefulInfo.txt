@@ -1,0 +1,7 @@
+Links to useful info about sending input to just 1 window (i.e. discord)
+
+http://www.cplusplus.com/forum/beginner/3811/ // Getting the handle to a window by its name
+https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-sendmessage // Sending a message to a specific window
+https://docs.microsoft.com/en-us/windows/desktop/winmsg/about-messages-and-message-queues // General info about messages
+https://docs.microsoft.com/en-us/windows/desktop/inputdev/keyboard-input-notifications // Look at key down and key up
+https://docs.microsoft.com/en-us/windows/desktop/inputdev/mouse-input-notifications // Contains all the info for different mouse buttons
