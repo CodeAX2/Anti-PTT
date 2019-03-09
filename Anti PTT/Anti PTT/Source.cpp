@@ -3,15 +3,9 @@
 #include <string>
 #include <bitset>
 #include <thread>
+#include <algorithm>
 
 INPUT inp;
-bool running = true;
-
-void pressKey() {
-	while (running) {
-		SendInput(1, &inp, sizeof(INPUT));
-	}
-}
 
 int main() {
 	HANDLE hStdin;
@@ -37,8 +31,6 @@ int main() {
 
 	inp = { 0 };
 
-	std::thread keyThread;
-
 	if (pttKey <= 0x06) {
 		inp.type = INPUT_MOUSE;
 		inp.mi.dwFlags = mouseMapDown[pttKey - 1];
@@ -58,15 +50,12 @@ int main() {
 
 	}
 
-	if (inp.type == INPUT_KEYBOARD) {
-		keyThread = std::thread(&pressKey);
-	} else {
-		Sleep(1000);
-		SendInput(1, &inp, sizeof(INPUT));
-	}
+	std::cout << "Paused so that releasing input doesn't interfere." << std::endl;
+	Sleep(1000);
+
+	SendInput(1, &inp, sizeof(INPUT));
 
 	std::cout << "Started! Press enter to exit!" << std::endl;
-
 
 	std::string enterToExit;
 	std::getline(std::cin, enterToExit);
@@ -84,12 +73,6 @@ int main() {
 
 	} else {
 		inp.ki.dwFlags = 2;
-	}
-
-	if (inp.type == INPUT_KEYBOARD) {
-		running = false;
-		keyThread.join();
-		keyThread.~thread();
 	}
 
 
